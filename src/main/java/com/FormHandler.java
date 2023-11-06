@@ -1,6 +1,9 @@
 package com;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.*;
+import java.util.Map;
+
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -20,65 +23,50 @@ public class FormHandler extends HttpServlet{
 		{
 		response.setContentType("text/html");
 		
-		PrintWriter out = response.getWriter();
-        HttpSession session = request.getSession();
-
-        Integer attendCount = (Integer) session.getAttribute("attendCount");
-        if (attendCount == null) {
-            attendCount = 0;
-        }
-
-        Integer notAttendCount = (Integer) session.getAttribute("notAttendCount");
-        if (notAttendCount == null) {
-            notAttendCount = 0;
-        }
+		HttpSession session = request.getSession();
 		
+        String userName  = request.getParameter("userName");
 		String eventName = request.getParameter("eventName");
         String eventDate = request.getParameter("eventDate");
         String eventTime = request.getParameter("eventTime");
         String eventLocation = request.getParameter("eventLocation");
         String eventDescription = request.getParameter("eventDescription");
-        
-        out.println("<!DOCTYPE html>");
-        out.println("<html lang=\"en\">");
-        out.println("<head>");
-        out.println("    <title>Event Information</title>");
-        out.println("</head>");
-        out.println("<body>");
-        out.println("<form method=\"post\" action=\"FormHandler\">");
-        out.println("    <h1>Event Information</h1>");
-        out.println("    <p>Event Name: " + eventName + "</p>");
-        out.println("    <p>Event Date: " + eventDate + "</p>");
-        out.println("    <p>Event Time: " + eventTime + "</p>");
-        out.println("    <p>Event Location: " + eventLocation + "</p>");
-        out.println("    <p>Event Description: " + eventDescription + "</p>");
-        out.println("    <button type=\"submit\" name=\"attendance\" value=\"attend\">Attend</button>");
-        out.println("    <button type=\"submit\" name=\"attendance\" value=\"not-attend\">Not Attend</button>");
-        out.println("</form>");
-        out.println("</br>");
-        out.println("<form method=\"GET\" action=\"RestartHandler\">");
-        out.println("    <button type=\"submit\">Restart</button>");
-        out.println("</form>");
-        out.println("</body>");
-        out.println("</html>");
+//        String finalUser = request.getParameter("final_username");
 
-        String confirmationChoice = request.getParameter("attendance");
         
-        if (confirmationChoice != null) {
-            if (confirmationChoice.equals("attend")) {
-                attendCount++;
-            } else if (confirmationChoice.equals("not-attend")) {
-                notAttendCount++;
-            }
+        request.setAttribute("userName", userName);
+        request.setAttribute("eventName", eventName);
+        request.setAttribute("eventDate", eventDate);
+        request.setAttribute("eventTime", eventTime);
+        request.setAttribute("eventLocation", eventLocation);
+        request.setAttribute("eventDescription", eventDescription);
+//        request.setAttribute("final_username", finalUser);
         
-            session.setAttribute("attendCount", attendCount);
-            session.setAttribute("notAttendCount", notAttendCount);
-
-            RequestDispatcher dispatcher = request.getRequestDispatcher("confirmationscreen.jsp");
-            dispatcher.forward(request, response);
+        Map<String, String> eventInfo = new HashMap<>();
+        eventInfo.put("userName", userName);
+//        eventInfo.put("final_username", finalUser);
+        eventInfo.put("eventName", eventName);
+        eventInfo.put("eventDate", eventDate);
+        eventInfo.put("eventTime", eventTime);
+        eventInfo.put("eventLocation", eventLocation);
+        eventInfo.put("eventDescription", eventDescription);
+        
+        
+        @SuppressWarnings("unchecked")
+		List<Map<String, String>> eventList = (List<Map<String, String>>) session.getAttribute("eventList");
+        if (eventList == null) {
+            eventList = new ArrayList<>();
         }
+
+        // Add the current event to the list
+        eventList.add(eventInfo);
+
+        // Update the event list in the session
+        session.setAttribute("eventList", eventList);
         
-        out.close();
+        RequestDispatcher dispatcher = request.getRequestDispatcher("eventinformation.jsp");
+        dispatcher.forward(request, response);
+
 		}
 	}
 	

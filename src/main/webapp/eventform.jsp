@@ -13,6 +13,10 @@
         <p>Kindly fill in the details below and let us know if you will be attending the event.</p>
        
         <form id="eventForm" action="FormHandler" method="POST">
+        
+        	<label for="userName">User Name:</label>
+            <input type="text" id="userName" name="userName">
+            
             <label for="eventName">Event Name:</label>
             <input type="text" id="eventName" name="eventName">
             
